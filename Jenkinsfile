@@ -97,7 +97,7 @@ pipeline {
             postPayload = postPayload.replace('flowContent', filecontent);
 
 	    println('fileContent')
-	    pritnln(filecontent)
+	    println(filecontent)
 	    println('PostPayload')
 	    println(postPayload)
 		  
