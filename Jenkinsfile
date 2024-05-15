@@ -94,8 +94,10 @@ pipeline {
             postPayload = postPayload.replace('packageId', env.IntegrationPackage);
             postPayload = postPayload.replace('flowContent', filecontent);
 
+	    println('fileContent')
+	    pritnln(filecontent)
 	    println('PostPayload')
-	    println(postPaylaod)
+	    println(postPayload)
 		  
             //upload
 	    println("Uploading flow.");
