@@ -94,6 +94,9 @@ pipeline {
             postPayload = postPayload.replace('packageId', env.IntegrationPackage);
             postPayload = postPayload.replace('flowContent', filecontent);
 
+	    println('PostPayload')
+	    println(postPaylaod)
+		  
             //upload
 	    println("Uploading flow.");
             def postResp = httpRequest acceptType: 'APPLICATION_JSON',
