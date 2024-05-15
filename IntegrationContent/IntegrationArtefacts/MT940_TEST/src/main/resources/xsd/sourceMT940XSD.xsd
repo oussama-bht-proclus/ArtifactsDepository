@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="record" minOccurs="1" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="X_20" type="xs:string"/>
+              <xs:element name="X_21" type="xs:string" minOccurs="0" /> 
+              <xs:element name="X_25" type="xs:string"/>
+              <xs:element name="X_28C" type="xs:string"/>
+              <xs:element name="X_60F" type="xs:string" minOccurs="0"/>
+              <xs:element name="X_60M" type="xs:string" minOccurs="0"/>
+              <xs:element name="X_62M" type="xs:string" minOccurs="0"/>
+              <xs:element name="X_62F" type="xs:string" minOccurs="0"/>
+              <xs:element name="X_64" type="xs:string" minOccurs="0"/>
+              <xs:element name="X_65" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+              <xs:element name="X_86" type="xs:string" minOccurs="0" />
+              <xs:element name="trans" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="X_61" type="xs:string"/>
+                    <xs:element name="X_86" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
