@@ -152,6 +152,7 @@ pipeline {
             println("Deployment successful triggered. Checking status.");
 			      //performing the loop until we get a final deployment status.
             while (counter < env.DeploymentCheckRetryCounter.toInteger() & continueLoop == true) {
+              println('got into the loop '+counter);
               Thread.sleep(3000);
               counter = counter + 1;
               def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
