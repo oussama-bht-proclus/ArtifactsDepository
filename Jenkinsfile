@@ -155,6 +155,7 @@ pipeline {
               println('got into the loop '+counter);
               Thread.sleep(3000);
               counter = counter + 1;
+              println('3000 sleep');
               def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
                 customHeaders: [
                   [maskValue: false, name: 'Authorization', value: token]
@@ -162,7 +163,9 @@ pipeline {
                 httpMode: 'GET',
                 responseHandle: 'LEAVE_OPEN',
                 timeout: 30,
+                consoleLogResponseBody : true,
                 url: 'https://' + env.CPIHost + '/api/v1/IntegrationRuntimeArtifacts(\'' + env.IntegrationFlowID + '\')';
+              println('after request');
               def jsonObj = readJSON text: statusResp.getContent();
               deploymentStatus = jsonObj.d.Status;
 
