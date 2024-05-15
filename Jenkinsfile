@@ -3,7 +3,7 @@ pipeline {
 
   //Configure the following environment variables before executing the Jenkins Job
   environment {
-    IntegrationFlowID = "MT940_TEST"
+    IntegrationFlowID = "com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update"
     IntegrationPackage = "TESTCICD" //relevant for flows that are uploaded the first time 
     DeployFlow = true //if the flow should only be uploaded, set this to false
     DeploymentCheckRetryCounter = 20 //multiply by 3 to get the maximum deployment time
@@ -162,7 +162,7 @@ pipeline {
                 responseHandle: 'LEAVE_OPEN',
                 timeout: 30,
                 url: 'https://' + env.CPIHost + '/api/v1/IntegrationRuntimeArtifacts(\'' + env.IntegrationFlowID + '\')';
-              def jsonObj = readJSON text: statusResp.content;
+              def jsonObj = readJSON text: statusResp.getContent();
               deploymentStatus = jsonObj.d.Status;
 
               println("Deployment status: " + deploymentStatus);

@@ -11,7 +11,7 @@ def processData(Message message){
     
     //messageLog.addAttachmentAsString("body.txt", message.getProperty("Payload"), "text/plain");
     
-    // test deployment
+    
     message.setProperty("EmptyPaylaod", empty); // when empty == true => the Customer doesn't exist thus CREATE
     message.setProperty("StatusCode", statusCode);
     message.setProperty("AX_customerID", customerID);
