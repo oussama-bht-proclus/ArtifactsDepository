@@ -159,6 +159,7 @@ pipeline {
               def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
                 customHeaders: [[name: 'Authorization', value: token]],
                 httpMode: 'GET',
+                validResponseCodes: '100:500',
                 responseHandle: 'LEAVE_OPEN',
                 contentType : 'APPLICATION_JSON',
                 timeout: 30,
