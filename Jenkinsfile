@@ -42,21 +42,20 @@ pipeline {
               ]
             ]
           ])
+		
+	  def zipFilePath = "${env.WORKSPACE}/ArtifactsDepository/IntegrationContent/IntegrationArtefacts/com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update.zip"
 
-
-		// Define the path to the zip file relative to the Jenkinsfile
-                    def zipFilePath = "ArtifactsDepository/IntegrationContent/IntegrationArtefacts/com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update.zip"
-                    
-                    // Create a File object for the zip file
-                    def zipFile = new File(zipFilePath)
-                    
-                    // Check if the zip file exists
-                    if (zipFile.exists()) {
-                        // Use the zip file as needed
-                        println("Zip file exists")
-                    } else {
-                        println("Zip file not found")
-                    }
+	// Check if the zip file exists
+	if (fileExists(zipFilePath)) {
+	    println("Zip file exists")
+	    // Read the file content
+	    def filecontent = readFile(file: zipFilePath)
+	    // Encode the file content to Base64
+	    def base64EncodedContent = filecontent.bytes.encodeBase64().toString()
+	    // Use the base64EncodedContent as needed
+	} else {
+	    println("Zip file not found")
+	}
 
 	  //zip the flow content 
           def folder = env.GITFolder + '/' + env.IntegrationFlowID + '/';
