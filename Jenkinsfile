@@ -84,7 +84,13 @@ pipeline {
 	  println(filePath)
 	  println('folder')
 	  println(folder)
-          def filecontent = readFile encoding: 'Base64', file: filePath;
+
+	  try {
+		  def filecontent = readFile encoding: 'Base64', file: filePath;
+	  } catch(Exception excep){
+	  	println('exception while reading file')
+		println(excep.getMessage())
+	  }
           if (checkResp.status == 404) {
             //Upload integration flow via POST
 	    println("Flow does not yet exist on configured tenant.");
