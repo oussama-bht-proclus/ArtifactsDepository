@@ -45,7 +45,7 @@ pipeline {
 
 
 		// Define the path to the zip file relative to the Jenkinsfile
-                    def zipFilePath = "IntegrationContent/IntegrationArtefacts/com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update.zip"
+                    def zipFilePath = "ArtifactsDepository/IntegrationContent/IntegrationArtefacts/com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update.zip"
                     
                     // Create a File object for the zip file
                     def zipFile = new File(zipFilePath)
