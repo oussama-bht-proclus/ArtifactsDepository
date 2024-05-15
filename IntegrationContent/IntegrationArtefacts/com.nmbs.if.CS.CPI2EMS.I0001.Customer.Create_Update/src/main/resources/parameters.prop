@@ -1,0 +1,7 @@
+#Tue May 07 07:12:15 UTC 2024
+SEARCH_URL=https\://test-belgiantrain.trinergy.be/api/v3/invoicing/customers/search
+UPDATE_URL=https\://test-belgiantrain.trinergy.be/api/v3/invoicing/customers/${property.AX_customerID}/update
+SAP_Sender=SBX
+CREATE_URL=https\://test-belgiantrain.trinergy.be/api/v3/invoicing/customers/create
+SAP_Receiver=EMS
+SENDER_ADDRESS=/com/nmbs/if/CS/CPI2EMS/I0001/Customer/Create_Update

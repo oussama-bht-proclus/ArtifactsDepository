@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="1.0">
+  <xsd:element name="customer">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="city" type="xsd:string" />
+        <xsd:element name="country_id" type="xsd:string" />
+        <xsd:element name="email" type="xsd:string" />
+        <xsd:element name="internal_notes" type="xsd:string" />
+        <xsd:element name="language" type="xsd:string" />
+        <xsd:element name="mobile" type="xsd:string" />
+        <xsd:element name="name" type="xsd:string" />
+        <xsd:element name="phone" type="xsd:string" />
+        <xsd:element name="sap_reference" type="xsd:string" />
+        <xsd:element name="street" type="xsd:string" />
+        <xsd:element name="street2" type="xsd:string" />
+        <xsd:element name="vat_number" type="xsd:string" />
+        <xsd:element name="zip_code" type="xsd:string" />
+        <xsd:element name="billable" type="xsd:string"  />
+        <xsd:element name="paying_party" type="xsd:string"  />
+        <!-- <xsd:element name="customer_enabled" type="xsd:boolean" /> -->
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>
