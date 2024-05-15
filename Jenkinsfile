@@ -52,7 +52,6 @@ pipeline {
 
           //get token
 	  println("Requesting token from Cloud Integration tenant");
-	  println("test print 0")
 	  def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON',
 	           // authentication: 'OAUTH_TEST_API',
 	            contentType: 'APPLICATION_JSON',
@@ -63,10 +62,9 @@ pipeline {
 		    consoleLogResponseBody : true,
 	            url: 'https://d4854fbatrial.authentication.us10.hana.ondemand.com/oauth/token?grant_type=client_credentials';
 	 
-	  println(" your response object is :"+getTokenResp.getContent())
+	  println("Initial token fetched :")
 	  def jsonObjToken = readJSON text: getTokenResp.getContent() 
           def token = "Bearer " + jsonObjToken.access_token
-	  println("auth token :" + token)
 	  getTokenResp.close()
 		
 	  //check if the flow already exists on the tenant
@@ -80,17 +78,14 @@ pipeline {
 	    consoleLogResponseBody : true,
             url: 'https://d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
 	
-
-	  println("test print 3")
-	  //def temp = new groovy.json.JsonSlurper().parseText(checkResp.getContent())
 	  def temp = readJSON text: checkResp.getContent() 
 	  println(temp)
-	  println("test print 4")
+	  println("Starting deployment process")
 		
-          //def filecontent = readFile encoding: 'Base64', file: filePath;
+          def filecontent = readFile encoding: 'Base64', file: filePath;
           if (checkResp.status == 404) {
             //Upload integration flow via POST
-			      println("Flow does not yet exist on configured tenant.");
+	    println("Flow does not yet exist on configured tenant.");
             //prepare upload payload
             def postPayload = '{ \"Name\": \"flowName\", \"Id": "flowId\", \"PackageId\": \"packageId\", \"ArtifactContent\":\"flowContent\"}';
 
