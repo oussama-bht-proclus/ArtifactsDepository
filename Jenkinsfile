@@ -10,7 +10,7 @@ pipeline {
     CPIHost = "d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com"
     CPIOAuthHost = "d4854fbatrial.it-cpitrial05-rt.cfapps.us10-001.hana.ondemand.com"
     CPIOAuthCredentials = "${env.CPI_OAUTH_CREDS_INTEGRATION}"
-    GITRepositoryURL = "github.com/oussama-bht-proclus/CI_CD_TEST"
+    GITRepositoryURL = "github.com/oussama-bht-proclus/ArtifactsDepository"
     GITCredentials = "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"
     GITBranch = "main"
     GITFolder = "IntegrationContent/IntegrationArtefacts"
