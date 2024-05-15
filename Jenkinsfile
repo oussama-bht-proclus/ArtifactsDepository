@@ -81,7 +81,10 @@ pipeline {
 	  def temp = readJSON text: checkResp.getContent() 
 	  println(temp)
 	  println("Starting deployment process")
-		
+	  println('filePath')
+	  println(filePath)
+	  println('folder')
+	  println(folder)
           def filecontent = readFile encoding: 'Base64', file: filePath;
           if (checkResp.status == 404) {
             //Upload integration flow via POST
