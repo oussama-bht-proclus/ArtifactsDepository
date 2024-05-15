@@ -95,7 +95,7 @@ pipeline {
             postPayload = postPayload.replace('flowContent', filecontent);
 
             //upload
-			      println("Uploading flow.");
+	    println("Uploading flow.");
             def postResp = httpRequest acceptType: 'APPLICATION_JSON',
               contentType: 'APPLICATION_JSON',
               customHeaders: [
@@ -103,7 +103,7 @@ pipeline {
               ],
               httpMode: 'POST',
               requestBody: postPayload,
-              url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts'
+              url: 'https://d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com/api/v1/IntegrationDesigntimeArtifacts'
           } else {
             //Overwrite integration flow via PUT
 			      println("Flow already exists on configured tenant. Update will be performed.");
@@ -113,7 +113,7 @@ pipeline {
             putPayload = putPayload.replace('iflowContent', filecontent);
 
             //upload
-			      println("Uploading flow.");
+	    println("Uploading flow.");
             def putResp = httpRequest acceptType: 'APPLICATION_JSON',
               contentType: 'APPLICATION_JSON',
               customHeaders: [
