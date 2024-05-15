@@ -155,7 +155,7 @@ pipeline {
               println('got into the loop '+counter);
               //Thread.sleep(3000);
               counter = counter + 1;
-              println('3000 sleep');
+              println('1000 sleep');
               def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
                 customHeaders: [
                   [maskValue: false, name: 'Authorization', value: token]
