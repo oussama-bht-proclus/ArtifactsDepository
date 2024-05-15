@@ -42,20 +42,6 @@ pipeline {
               ]
             ]
           ])
-		
-	  def zipFilePath = "${env.WORKSPACE}/ArtifactsDepository/IntegrationContent/IntegrationArtefacts/com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update.zip"
-
-	// Check if the zip file exists
-	if (fileExists(zipFilePath)) {
-	    println("Zip file exists")
-	    // Read the file content
-	    def filecontent = readFile(file: zipFilePath)
-	    // Encode the file content to Base64
-	    def base64EncodedContent = filecontent.bytes.encodeBase64().toString()
-	    // Use the base64EncodedContent as needed
-	} else {
-	    println("Zip file not found")
-	}
 
 	  //zip the flow content 
           def folder = env.GITFolder + '/' + env.IntegrationFlowID + '/';
@@ -63,7 +49,6 @@ pipeline {
 
           zip dir: folder, glob: '', zipFile: filePath;
 		
-
           //get token
 	  println("Requesting token from Cloud Integration tenant");
 	  def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON',
@@ -99,7 +84,13 @@ pipeline {
 	  println(filePath)
 	  println('folder')
 	  println(folder)
-          def filecontent = readFile encoding: 'Base64', file: filePath;
+
+	  try {
+		  def filecontent = readFile encoding: 'Base64', file: filePath;
+	  } catch(Exception excep){
+	  	println('exception while reading file')
+		println(excep.getMessage())
+	  }
           if (checkResp.status == 404) {
             //Upload integration flow via POST
 	    println("Flow does not yet exist on configured tenant.");
@@ -112,7 +103,7 @@ pipeline {
             postPayload = postPayload.replace('flowContent', filecontent);
 
 	    println('fileContent')
-	    pritnln(filecontent)
+	    println(filecontent)
 	    println('PostPayload')
 	    println(postPayload)
 		  
