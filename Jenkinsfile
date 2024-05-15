@@ -157,11 +157,10 @@ pipeline {
               counter = counter + 1;
               println('1000 sleep');
               def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
-                customHeaders: [
-                  [maskValue: false, name: 'Authorization', value: token]
-                ],
+                customHeaders: [[name: 'Authorization', value: token]],
                 httpMode: 'GET',
                 responseHandle: 'LEAVE_OPEN',
+                contentType : 'APPLICATION_JSON',
                 timeout: 30,
                 consoleLogResponseBody : true,
                 url: 'https://' + env.CPIHost + '/api/v1/IntegrationRuntimeArtifacts(\'' + env.IntegrationFlowID + '\')';
