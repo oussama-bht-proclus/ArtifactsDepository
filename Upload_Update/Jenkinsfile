@@ -16,6 +16,10 @@ pipeline {
     GITFolder = "IntegrationContent/IntegrationArtefacts"
   }
 
+  parameters {
+    string(name: 'foo', defaultValue: '', description: 'Suite File')
+  }
+
   stages {
     stage('Get Iflow Artifact from Git, upload to CPI Designtime and optionally Deploy') {
       steps {
