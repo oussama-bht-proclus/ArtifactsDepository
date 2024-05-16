@@ -107,7 +107,7 @@ pipeline {
 					println("Store integration artefact in Git")
 					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'GithubCReds' ,usernameVariable: 'oussama.boumhaout@proclus-group.com', passwordVariable: 'GIT_PASSWORD']]) {  
 						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
-						sh('git push https://oussama.boumhaout@proclus-group.com:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
+						sh('git push https://oussama.boumhaout@proclus-group.com:$Inborn2000*@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
 					}
 					println('PIPELINE OVER')				
 				}
