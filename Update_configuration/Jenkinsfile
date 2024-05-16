@@ -3,11 +3,11 @@ pipeline {
 
 	//Configure the following environment variables before executing the Jenkins Job
 	environment {
-		IntegrationFlowID = "IntegrationFlow1"
-		ConfigParameter = "parameter1"
-		NewConfigValue = "myNewValue"
-		CPIHost = "${env.CPI_HOST}"
-		CPIOAuthHost = "${env.CPI_OAUTH_HOST}"
+		IntegrationFlowID = "com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update"
+		ConfigParameter = "SAP_Receiver"
+		NewConfigValue = "new_RCV"
+		CPIHost = "d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com"
+		CPIOAuthHost = "d4854fbatrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"
     }
 	
@@ -17,19 +17,24 @@ pipeline {
 				script {
 				   //Get oauth token
 				   def token;
+				   println('Fetching authentification token')
 				   try {
 					def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
-						authentication: "${env.CPIOAuthCredentials}", 
+						//authentication: "${env.CPIOAuthCredentials}", 
+						customHeaders:[[name:'Authorization', value:"Basic c2ItM2JjNGRhMGMtN2E0YS00ZTc0LWE0MDEtNDc3NzY1NTExYzM1IWIyNzkwNDR8aXQhYjI2NjU1OmQwZDRjZjFiLWI5MTUtNDI5Ny1iOWJjLTEzYTI0ZWQwMmFhNyRfeUNDSi1tdE5lOWE3V041aWRKSkU1T216T2JuRFdoM3AxS0ZEb01VaWd3PQ=="]],
 						contentType: 'APPLICATION_JSON', 
 						httpMode: 'POST', 
+						consoleLogResponseBody : 'true',
 						responseHandle: 'LEAVE_OPEN', 
 						timeout: 30, 
 						url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
-					def jsonObjToken = readJSON text: getTokenResp.content
+					def jsonObjToken = readJSON text: getTokenResp.getContent()
 					token = "Bearer " + jsonObjToken.access_token
 			        } catch (Exception e) {
 						error("Oauth bearer token generation failed:\n${e}")
 					}
+
+					println('Bearer token fetched => ' + token)
 					//get the list of config parameters
 					def getConfigResp = httpRequest acceptType: 'APPLICATION_JSON', 
 						customHeaders: [[maskValue: false, name: 'Authorization', value: token]], 
