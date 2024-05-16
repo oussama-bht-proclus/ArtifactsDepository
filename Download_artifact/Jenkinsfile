@@ -4,15 +4,17 @@ pipeline {
 	//Configure the following environment variables before executing the Jenkins Job	
 	environment {
 		IntegrationFlowID = "IntegrationFlow1"
-		CPIHost = "${env.CPI_HOST}"
-		CPIOAuthHost = "${env.CPI_OAUTH_HOST}"
+		CPIHost = "5f8ab36dtrial.it-cpitrial06.cfapps.us10-001.hana.ondemand.com"
+		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
-		GITRepositoryURL  = "${env.GIT_REPOSITORY_URL}"
-		GITCredentials = "${env.GIT_CRED}"
-		GITBranch = "${env.GIT_BRANCH_NAME}"
+		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository"
+		GITCredentials = "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"
+		GITBranch = "main"
 		GITFolder = "IntegrationContent/IntegrationArtefacts"
 		GITComment = "Integration Artefacts update from CICD pipeline"
    	}
+
+	
 	
 	stages {
 		stage('download integration artefact and store it in Git') {
@@ -40,13 +42,14 @@ pipeline {
 					def token;
 					try{
 					def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
-						authentication: env.CPIOAuthCredentials, 
+						//authentication: env.CPIOAuthCredentials, 
+						customHeaders : [[name: 'Authorization', value: "Basic sb-5d7504e5-c2d1-44dd-9307-eab435c0b9bb!b284503|it!b55215:d4890351-155a-438a-afc1-7d91a54e653f$KhFthaRVssqotr9PKKncRVd3d0OXI6N4tsZev_H-_VE="]]
 						contentType: 'APPLICATION_JSON', 
 						httpMode: 'POST', 
 						responseHandle: 'LEAVE_OPEN', 
 						timeout: 30, 
 						url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
-					def jsonObjToken = readJSON text: getTokenResp.content
+					def jsonObjToken = readJSON text: getTokenResp.getContent()
 					token = "Bearer " + jsonObjToken.access_token
 				   	} catch (Exception e) {
 						error("Requesting the oauth token for Cloud Integration failed:\n${e}")
