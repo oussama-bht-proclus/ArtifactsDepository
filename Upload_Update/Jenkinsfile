@@ -48,8 +48,8 @@ pipeline {
           ])
 
 
-          println('Your param FOO => '+${params.foo})
-
+          println('Your param FOO => ')
+          println('Your param FOO => '+params.foo)
 	  //zip the flow content 
           def folder = env.GITFolder + '/' + env.IntegrationFlowID + '/';
           def filePath = env.IntegrationFlowID + ".zip";
