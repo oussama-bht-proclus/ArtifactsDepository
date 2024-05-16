@@ -50,6 +50,7 @@ pipeline {
 							responseHandle: 'LEAVE_OPEN', 
 							timeout: 30, 
 							url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
+						println('REQUEST BEFORE json')
 						def jsonObjToken = readJSON text: getTokenResp.getContent()
 						println('REQUEST AFTER')
 						token = "Bearer " + jsonObjToken.access_token
