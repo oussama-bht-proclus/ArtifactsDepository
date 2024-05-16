@@ -41,16 +41,18 @@ pipeline {
 					println("Request token");
 					def token;
 					try{
-					def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
-						//authentication: env.CPIOAuthCredentials, 
-						customHeaders : [[name: 'Authorization', value: "Basic sb-5d7504e5-c2d1-44dd-9307-eab435c0b9bb!b284503|it!b55215:d4890351-155a-438a-afc1-7d91a54e653f$KhFthaRVssqotr9PKKncRVd3d0OXI6N4tsZev_H-_VE="]],
-						contentType: 'APPLICATION_JSON', 
-						httpMode: 'POST', 
-						responseHandle: 'LEAVE_OPEN', 
-						timeout: 30, 
-						url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
-					def jsonObjToken = readJSON text: getTokenResp.getContent()
-					token = "Bearer " + jsonObjToken.access_token
+						println('REQUEST BEFORE')
+						def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
+							//authentication: env.CPIOAuthCredentials, 
+							customHeaders : [[name: 'Authorization', value: "Basic sb-5d7504e5-c2d1-44dd-9307-eab435c0b9bb!b284503|it!b55215:d4890351-155a-438a-afc1-7d91a54e653f$KhFthaRVssqotr9PKKncRVd3d0OXI6N4tsZev_H-_VE="]],
+							contentType: 'APPLICATION_JSON', 
+							httpMode: 'POST', 
+							responseHandle: 'LEAVE_OPEN', 
+							timeout: 30, 
+							url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
+						def jsonObjToken = readJSON text: getTokenResp.getContent()
+						println('REQUEST AFTER')
+						token = "Bearer " + jsonObjToken.access_token
 				   	} catch (Exception e) {
 						error("Requesting the oauth token for Cloud Integration failed:\n${e}")
 					}
