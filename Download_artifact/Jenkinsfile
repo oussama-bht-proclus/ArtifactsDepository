@@ -86,6 +86,7 @@ pipeline {
 					println('GET REQUEST PAST 2')
 					println('FilePath : '+tempfile)
 					println('targetLocation : '+folder)
+
 					try {
 						fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
 					}catch(Exception excep){
@@ -107,7 +108,8 @@ pipeline {
 					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: env.GITCredentials ,usernameVariable: 'GIT_AUTHOR_NAME', passwordVariable: 'GIT_PASSWORD']]) {  
 						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
 						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
-					}				
+					}
+					println('PIPELINE OVER')				
 				}
 			}
 		}
