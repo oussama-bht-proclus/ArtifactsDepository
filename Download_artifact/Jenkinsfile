@@ -84,7 +84,15 @@ pipeline {
 					println('GET REQUEST PAST 1')
 					def folder=env.GITFolder + '/' + filename.substring(0, filename.indexOf('.zip'));
 					println('GET REQUEST PAST 2')
-					fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
+					println('FilePath : '+tempfile)
+					println('targetLocation : '+folder)
+					try {
+						fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
+					}catch(Exception excep){
+						println("EXCEPTIOn =>");
+						println(excep.getMessage());
+					}
+
 					println('GET REQUEST PAST 3')
 					cpiDownloadResponse.close();
 					println('GET REQUEST PAST 4')
