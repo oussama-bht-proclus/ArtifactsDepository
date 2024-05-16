@@ -1,0 +1,99 @@
+pipeline {
+	agent any
+
+	//Configure the following environment variables before executing the Jenkins Job	
+	environment {
+		IntegrationFlowID = "IntegrationFlow1"
+		CPIHost = "5f8ab36dtrial.it-cpitrial06.cfapps.us10-001.hana.ondemand.com"
+		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
+		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
+		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository"
+		GITCredentials = "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"
+		GITBranch = "main"
+		GITFolder = "IntegrationContent/IntegrationArtefacts"
+		GITComment = "Integration Artefacts update from CICD pipeline"
+   	}
+
+	
+	
+	stages {
+		stage('download integration artefact and store it in Git') {
+			steps {
+			 	deleteDir()
+				script {
+					//clone repo 
+					checkout([
+						$class: 'GitSCM',
+						branches: [[name: env.GITBranch]],
+						doGenerateSubmoduleConfigurations: false,
+						extensions: [
+							[$class: 'RelativeTargetDirectory',relativeTargetDir: "."],
+							[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path: env.GITFolder]]]
+						],
+						submoduleCfg: [],
+						userRemoteConfigs: [[
+							credentialsId: env.GITCredentials,
+							url: 'https://' + env.GITRepositoryURL
+						]]
+					])
+					
+					//get token
+					println("Request token");
+					def token;
+					try{
+					def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
+						//authentication: env.CPIOAuthCredentials, 
+						customHeaders : [[name: 'Authorization', value: "Basic sb-5d7504e5-c2d1-44dd-9307-eab435c0b9bb!b284503|it!b55215:d4890351-155a-438a-afc1-7d91a54e653f$KhFthaRVssqotr9PKKncRVd3d0OXI6N4tsZev_H-_VE="]]
+						contentType: 'APPLICATION_JSON', 
+						httpMode: 'POST', 
+						responseHandle: 'LEAVE_OPEN', 
+						timeout: 30, 
+						url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
+					def jsonObjToken = readJSON text: getTokenResp.getContent()
+					token = "Bearer " + jsonObjToken.access_token
+				   	} catch (Exception e) {
+						error("Requesting the oauth token for Cloud Integration failed:\n${e}")
+					}
+					//delete the old flow content so that only the latest content gets stored
+					dir(env.GITFolder + '/' + env.IntegrationFlowID){
+						deleteDir();
+					}
+					//download and extract artefact from tenant
+					println("Downloading artefact");
+					def tempfile = UUID.randomUUID().toString() + ".zip";
+					def cpiDownloadResponse = httpRequest acceptType: 'APPLICATION_ZIP', 
+						customHeaders: [[maskValue: false, name: 'Authorization', value: token]], 
+						ignoreSslErrors: false, 
+						responseHandle: 'LEAVE_OPEN', 
+						validResponseCodes: '100:399, 404',
+						timeout: 30,  
+						outputFile: tempfile,
+						url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\''+ env.IntegrationFlowID + '\',Version=\'active\')/$value';
+					if (cpiDownloadResponse.status == 404){
+						//invalid Flow ID
+						error("Received http status code 404. Please check if the Artefact ID that you have provided exists on the tenant.");
+					}
+					def disposition = cpiDownloadResponse.headers.toString();
+					def index=disposition.indexOf('filename')+9;
+					def lastindex=disposition.indexOf('.zip', index);
+					def filename=disposition.substring(index + 1, lastindex + 4);
+					def folder=env.GITFolder + '/' + filename.substring(0, filename.indexOf('.zip'));
+					fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
+					cpiDownloadResponse.close();
+
+					//remove the zip
+					fileOperations([fileDeleteOperation(excludes: '', includes: tempfile)])
+						
+					dir(folder){
+						sh 'git add .'
+					}
+					println("Store integration artefact in Git")
+					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: env.GITCredentials ,usernameVariable: 'GIT_AUTHOR_NAME', passwordVariable: 'GIT_PASSWORD']]) {  
+						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
+						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
+					}				
+				}
+			}
+		}
+    }
+}
