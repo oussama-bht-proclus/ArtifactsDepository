@@ -76,16 +76,12 @@ pipeline {
 						//invalid Flow ID
 						error("Received http status code 404. Please check if the Artefact ID that you have provided exists on the tenant.");
 					}
-					println('GET REQUEST PAST')
+
 					def disposition = cpiDownloadResponse.headers.toString();
 					def index=disposition.indexOf('filename')+9;
 					def lastindex=disposition.indexOf('.zip', index);
 					def filename=disposition.substring(index + 1, lastindex + 4);
-					println('GET REQUEST PAST 1')
 					def folder=env.GITFolder + '/' + filename.substring(0, filename.indexOf('.zip'));
-					println('GET REQUEST PAST 2')
-					println('FilePath : '+tempfile)
-					println('targetLocation : '+folder)
 
 					try {
 						fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
@@ -94,9 +90,7 @@ pipeline {
 						println(excep.getMessage());
 					}
 
-					println('GET REQUEST PAST 3')
 					cpiDownloadResponse.close();
-					println('GET REQUEST PAST 4')
 
 					//remove the zip
 					fileOperations([fileDeleteOperation(excludes: '', includes: tempfile)])
@@ -105,9 +99,9 @@ pipeline {
 						sh 'git add .'
 					}
 					println("Store integration artefact in Git")
-					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'GithubCReds' ,usernameVariable: 'oussama.boumhaout@proclus-group.com', passwordVariable: 'GIT_PASSWORD']]) {  
+					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'GithubCReds' ,usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {  
 						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
-						sh('git push https://oussama.boumhaout@proclus-group.com:$Inborn2000*@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
+						sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
 					}
 					println('PIPELINE OVER')				
 				}
