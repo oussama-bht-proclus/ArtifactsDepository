@@ -50,7 +50,7 @@ pipeline {
           zip dir: folder, glob: '', zipFile: filePath;
 		
           //get token
-	  println("Requesting token from Cloud Integration tenant");
+	  println("Requesting token from Cloud Integration tenant - UPLOAD UPDATE");
 	  def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON',
 	           // authentication: 'OAUTH_TEST_API',
 	            contentType: 'APPLICATION_JSON',
