@@ -8,7 +8,8 @@ pipeline {
 		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
 		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository.git"
-		GITCredentials = "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"
+		//GITCredentials = "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"
+		GITCredentials = "GithubCReds"
 		GITBranch = "main"
 		GITFolder = "IntegrationContent/IntegrationArtefacts"
 		GITComment = "Integration Artefacts update from CICD pipeline"
@@ -99,9 +100,9 @@ pipeline {
 						sh 'git add .'
 					}
 					println("Store integration artefact in Git")
-					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'GithubCReds' ,usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {  
+					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: env.GITCredentials ,usernameVariable: 'GIT_AUTHOR_NAME', passwordVariable: 'GIT_PASSWORD']]) {  
 						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
-						sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
+						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
 					}
 					println('PIPELINE OVER')				
 				}
