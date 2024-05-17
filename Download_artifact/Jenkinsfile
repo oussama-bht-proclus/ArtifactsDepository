@@ -126,6 +126,7 @@ pipeline {
 					} catch(Exception exception){
 						println("EXCEPTION AT WITHCREDENTIALS");
 						println(exception.getMessage())
+						println(exception.getCause())
 					}
 
 					println('PIPELINE OVER')				
