@@ -110,7 +110,8 @@ pipeline {
 						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
 					}
 					*/
-					try {
+
+					/*try {
 						withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH')]) {
 							script {
 								sh '''
@@ -126,7 +127,31 @@ pipeline {
 					} catch(Exception exception){
 						println("EXCEPTION AT WITHCREDENTIALS");
 						println(exception.getMessage())
-					}
+					}*/
+
+
+					try {
+                        withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
+                            // Start SSH agent
+                            def sshAgent = 'eval `ssh-agent -s`'.execute()
+                            sshAgent.waitFor()
+
+                            // Load SSH key into agent with passphrase
+                            def expectScript = "expect -c 'spawn ssh-add ${SSH_KEY_PATH}; expect \"Enter passphrase\"; send \"${SSH_PASSPHRASE}\\r\"; expect eof'"
+                            sh expectScript
+
+                            // Configure git to use SSH key
+                            sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
+
+                            // Commit and push changes
+                            sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
+                            sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
+                        }
+                    } catch (Exception e) {
+                        // Capture and print any exceptions
+                        echo "Error: ${e.getMessage()}"
+                        //currentBuild.result = 'FAILURE'
+                    }
 
 					println('PIPELINE OVER')				
 				}
