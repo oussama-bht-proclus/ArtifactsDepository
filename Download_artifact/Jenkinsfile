@@ -128,9 +128,11 @@ pipeline {
 
                         withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
                             // Start SSH agent and add the key
+							
                             sh '''
                                 eval `ssh-agent -s`
                                 echo "$SSH_PASSPHRASE" | ssh-add $SSH_KEY_PATH
+								ssh-add -l
                             '''
                             
                             // Configure git to use SSH key
