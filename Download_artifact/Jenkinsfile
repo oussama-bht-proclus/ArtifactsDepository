@@ -111,7 +111,7 @@ pipeline {
 					}
 					*/
 					try {
-						withCredentials([sshUserPrivateKey(credentialsId: env.GIT_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY_PATH')]) {
+						withCredentials([sshUserPrivateKey(credentialsId: 'SSHPrivate', keyFileVariable: 'SSH_KEY_PATH')]) {
 							script {
 								sh '''
 								eval `ssh-agent -s`
@@ -126,7 +126,6 @@ pipeline {
 					} catch(Exception exception){
 						println("EXCEPTION AT WITHCREDENTIALS");
 						println(exception.getMessage())
-						println(exception.getCause())
 					}
 
 					println('PIPELINE OVER')				
