@@ -148,9 +148,12 @@ pipeline {
                             sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
                         }
                     } catch (Exception e) {
+
                         // Capture and print any exceptions
-                        echo "Error: ${e.getMessage()}"
+						println('EXCEPTION CATCHED')
+                        println("Error: ${e.getMessage()}")
                         //currentBuild.result = 'FAILURE'
+
                     }
 
 					println('PIPELINE OVER')				
