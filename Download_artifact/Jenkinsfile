@@ -8,7 +8,8 @@ pipeline {
 		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
 		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository.git"
-		GITRepositoryURLSSH = "https://github.com/oussama-bht-proclus/ArtifactsDepository.git"
+		//GITRepositoryURLSSH = "https://github.com/oussama-bht-proclus/ArtifactsDepository.git"
+		GITRepositoryURLSSH = "git@github.com:oussama-bht-proclus/ArtifactsDepository.git"
 		//GITCredentials = "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"
 		GITCredentials = "GithubCReds"
 		GIT_CREDENTIALS_ID = "SSHPrivate"
@@ -124,6 +125,7 @@ pipeline {
 						}
 						*/
 						// Retrieve SSH key and passphrase from Jenkins credentials
+
                         withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
                             // Start SSH agent and add the key
                             sh '''
