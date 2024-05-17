@@ -110,16 +110,22 @@ pipeline {
 						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
 					}
 					*/
-					withCredentials([sshUserPrivateKey(credentialsId: env.GIT_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY_PATH')]) {
-						script {
-							sh '''
-							eval `ssh-agent -s`
-							ssh-add $SSH_KEY_PATH
-							'''
-							sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
-							sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
-							sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
+					try {
+						withCredentials([sshUserPrivateKey(credentialsId: env.GIT_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY_PATH')]) {
+							script {
+								sh '''
+								eval `ssh-agent -s`
+								ssh-add $SSH_KEY_PATH
+								'''
+								sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
+								sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
+								sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
+							}
 						}
+						//
+					} catch(Exception exception){
+						println("EXCEPTION AT WITHCREDENTIALS");
+						println(exception.getMessage())
 					}
 
 					println('PIPELINE OVER')				
