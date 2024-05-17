@@ -111,7 +111,7 @@ pipeline {
 					}
 					*/
 
-					/*try {
+					try {
 						withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH')]) {
 							script {
 								sh '''
@@ -125,11 +125,11 @@ pipeline {
 						}
 						//
 					} catch(Exception exception){
-						println("EXCEPTION AT WITHCREDENTIALS");
-						println(exception.getMessage())
-					}*/
+						println('EXCEPTION CATCHED')
+                        println("Error: ${e.getMessage()}")
+					}
 
-
+					/*
 					try {
                         // Retrieve SSH key and passphrase from Jenkins credentials
                         withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
@@ -149,11 +149,10 @@ pipeline {
                     } catch (Exception e) {
 
                         // Capture and print any exceptions
-						println('EXCEPTION CATCHED')
-                        println("Error: ${e.getMessage()}")
+						
                         //currentBuild.result = 'FAILURE'
 
-                    }
+                    }*/
 
 					println('PIPELINE OVER')				
 				}
