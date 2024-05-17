@@ -112,7 +112,7 @@ pipeline {
 					*/
 
 					try {
-						withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH')]) {
+						/*withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH')]) {
 							script {
 								sh '''
 								eval `ssh-agent -s`
@@ -123,7 +123,22 @@ pipeline {
 								sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
 							}
 						}
-						//
+						*/
+						// Retrieve SSH key and passphrase from Jenkins credentials
+                        withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
+                            // Start SSH agent and add the key
+                            sh '''
+                                eval `ssh-agent -s`
+                                echo "$SSH_PASSPHRASE" | ssh-add $SSH_KEY_PATH
+                            '''
+                            
+                            // Configure git to use SSH key
+                            sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
+
+                            // Commit and push changes
+                            sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
+                            sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
+                        }
 					} catch(Exception exception){
 						println('EXCEPTION CATCHED')
                         println("Error: ${e.getMessage()}")
