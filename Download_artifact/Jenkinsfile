@@ -10,9 +10,12 @@ pipeline {
 		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository.git"
 		//GITCredentials = "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"
 		GITCredentials = "GithubCReds"
+		GIT_CREDENTIALS_ID = "SSHPrivate"
 		GITBranch = "main"
 		GITFolder = "IntegrationContent/IntegrationArtefacts"
 		GITComment = "Integration Artefacts update from CICD pipeline"
+		// add the SSH key/username to the Jenkins Server, GihubCReds uses as a password a Personal access token 
+		// ssh added 
    	}
 
 	
@@ -100,10 +103,25 @@ pipeline {
 						sh 'git add .'
 					}
 					println("Store integration artefact in Git")
+
+					/*
 					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: env.GITCredentials ,usernameVariable: 'GIT_AUTHOR_NAME', passwordVariable: 'GIT_PASSWORD']]) {  
 						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
 						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
 					}
+					*/
+					withCredentials([sshUserPrivateKey(credentialsId: env.GIT_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY_PATH')]) {
+						script {
+							sh '''
+							eval `ssh-agent -s`
+							ssh-add $SSH_KEY_PATH
+							'''
+							sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
+							sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
+							sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
+						}
+					}
+
 					println('PIPELINE OVER')				
 				}
 			}
