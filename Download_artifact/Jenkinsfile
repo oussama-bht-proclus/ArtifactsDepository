@@ -131,15 +131,14 @@ pipeline {
 
 
 					try {
+                        // Retrieve SSH key and passphrase from Jenkins credentials
                         withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
-                            // Start SSH agent
-                            def sshAgent = 'eval `ssh-agent -s`'.execute()
-                            sshAgent.waitFor()
-
-                            // Load SSH key into agent with passphrase
-                            def expectScript = "expect -c 'spawn ssh-add ${SSH_KEY_PATH}; expect \"Enter passphrase\"; send \"${SSH_PASSPHRASE}\\r\"; expect eof'"
-                            sh expectScript
-
+                            // Start SSH agent and add the key
+                            sh '''
+                                eval $(ssh-agent -s)
+                                ssh-add $SSH_KEY_PATH < <(echo $SSH_PASSPHRASE)
+                            '''
+                            
                             // Configure git to use SSH key
                             sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
 
