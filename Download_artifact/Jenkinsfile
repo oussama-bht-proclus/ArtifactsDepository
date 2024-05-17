@@ -7,16 +7,14 @@ pipeline {
 		CPIHost = "5f8ab36dtrial.it-cpitrial06.cfapps.us10-001.hana.ondemand.com"
 		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
-		//GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository.git"
-		GITRepositoryURL = "https://github.com/oussama-bht-proclus/ArtifactsDepository.git"
+		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository.git"
+		GITRepositoryURLSSH = "https://github.com/oussama-bht-proclus/ArtifactsDepository.git"
 		//GITCredentials = "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"
 		GITCredentials = "GithubCReds"
 		GIT_CREDENTIALS_ID = "SSHPrivate"
 		GITBranch = "main"
 		GITFolder = "IntegrationContent/IntegrationArtefacts"
 		GITComment = "Integration Artefacts update from CICD pipeline"
-		// add the SSH key/username to the Jenkins Server, GihubCReds uses as a password a Personal access token 
-		// ssh added 
    	}
 
 	
@@ -138,7 +136,7 @@ pipeline {
 
                             // Commit and push changes
                             sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
-                            sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
+                            sh 'git push ' + env.GITRepositoryURLSSH + ' HEAD:' + env.GITBranch
                         }
 					} catch(Exception exception){
 						println('EXCEPTION CATCHED')
