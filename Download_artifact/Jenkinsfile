@@ -104,28 +104,6 @@ pipeline {
 					}
 					println("Store integration artefact in Git")
 
-					/*
-					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: env.GITCredentials ,usernameVariable: 'GIT_AUTHOR_NAME', passwordVariable: 'GIT_PASSWORD']]) {  
-						sh 'git diff-index --quiet HEAD || git commit -am ' + '\'' + env.GitComment + '\''
-						sh('git push https://${GIT_AUTHOR_NAME}:${GIT_PASSWORD}@' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch)
-					}
-					*/
-
-					try {
-						/*withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH')]) {
-							script {
-								sh '''
-								eval `ssh-agent -s`
-								ssh-add $SSH_KEY_PATH
-								'''
-								sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
-								sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
-								sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
-							}
-						}
-						*/
-						// Retrieve SSH key and passphrase from Jenkins credentials
-
                         withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
                             // Start SSH agent and add the key
 							
@@ -147,32 +125,7 @@ pipeline {
                         println("Error: ${e.getMessage()}")
 					}
 
-					/*
-					try {
-                        // Retrieve SSH key and passphrase from Jenkins credentials
-                        withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
-                            // Start SSH agent and add the key
-                            sh '''
-                                eval $(ssh-agent -s)
-                                ssh-add $SSH_KEY_PATH < <(echo $SSH_PASSPHRASE)
-                            '''
-                            
-                            // Configure git to use SSH key
-                            sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
-
-                            // Commit and push changes
-                            sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
-                            sh 'git push ' + env.GITRepositoryURL + ' HEAD:' + env.GITBranch
-                        }
-                    } catch (Exception e) {
-
-                        // Capture and print any exceptions
-						
-                        //currentBuild.result = 'FAILURE'
-
-                    }*/
-
-					println('PIPELINE OVER')				
+					println('PIPELINE OVER 2')				
 				}
 			}
 		}
