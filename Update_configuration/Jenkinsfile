@@ -3,13 +3,18 @@ pipeline {
 
 	//Configure the following environment variables before executing the Jenkins Job
 	environment {
-		IntegrationFlowID = "com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update"
+		IntegrationFlowID = "com.nmbs.if.GLB.RDMT2VBX.I0010.TACO_DERIVED_TACO.Read"
 		ConfigParameter = "SAP_Receiver"
 		NewConfigValue = "TEST_GCP"
 		CPIHost = "d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com"
 		CPIOAuthHost = "d4854fbatrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"
     }
+
+	parameters {
+		string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration ID')
+		string(name: 'PackageID' , defaultValue: '', description: 'Target package ID where the IFlow should be uploaded to')
+	}
 	
 	stages {
 		stage('Update Configuration') {

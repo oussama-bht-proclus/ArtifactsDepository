@@ -3,7 +3,7 @@ pipeline {
 
 	//Configure the following environment variables before executing the Jenkins Job	
 	environment {
-		IntegrationFlowID = "Access_Secure_Parameters_in_Scripts"
+		IntegrationFlowID = "${params.IntegrationFlowID}"
 		CPIHost = "5f8ab36dtrial.it-cpitrial06.cfapps.us10-001.hana.ondemand.com"
 		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
@@ -18,7 +18,10 @@ pipeline {
 		GITComment = "Integration Artefacts update from CICD pipeline"
    	}
 
-	
+	parameters {
+		string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
+	}
+
 	
 	stages {
 		stage('download integration artefact and store it in Git') {
