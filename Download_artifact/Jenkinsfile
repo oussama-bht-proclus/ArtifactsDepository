@@ -136,4 +136,12 @@ pipeline {
 			}
 		}
     }
+	post {
+		success {
+			script {
+				def flowID = "${params.IntegrationFlowID}"
+                build job: 'Upload_Update_IFlow', parameters: [string(name: 'IntegrationFlowID', value: flowID)]
+			}
+		}
+	}
 }
