@@ -108,7 +108,7 @@ pipeline {
 					println("Store integration artefact in Git")
 
 					try {
-                        withCredentials([sshUserPrivateKey(credentialsId: 'TRIAL_SSH', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
+                        withCredentials([sshUserPrivateKey(credentialsId: 'GIT_SSH_KEY', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
                             // Start SSH agent and add the key
 							
                             sh '''
@@ -126,7 +126,7 @@ pipeline {
                         }
 					} catch(Exception exception){
 						println('EXCEPTION CATCHED')
-                        println("Error: ${e.getMessage()}")
+                        println("Error: ${exception.getMessage()}")
 					}
 
 					
