@@ -5,7 +5,7 @@ pipeline {
 	environment {
 		IntegrationFlowID = "com.nmbs.if.CS.CPI2EMS.I0001.Customer.Create_Update"
 		ConfigParameter = "SAP_Receiver"
-		NewConfigValue = "new_RCV_TEST_BRANCH"
+		NewConfigValue = "TEST_GCP"
 		CPIHost = "d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com"
 		CPIOAuthHost = "d4854fbatrial.authentication.us10.hana.ondemand.com"
 		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"
