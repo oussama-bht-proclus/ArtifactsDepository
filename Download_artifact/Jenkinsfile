@@ -4,23 +4,22 @@ pipeline {
 	//Configure the following environment variables before executing the Jenkins Job	
 	environment {
 		IntegrationFlowID = "${params.IntegrationFlowID}"
-		CPIHost = "5f8ab36dtrial.it-cpitrial06.cfapps.us10-001.hana.ondemand.com"
-		CPIOAuthHost = "5f8ab36dtrial.authentication.us10.hana.ondemand.com"
-		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
-		GITRepositoryURL  = "github.com/oussama-bht-proclus/ArtifactsDepository.git"
-		//GITRepositoryURLSSH = "https://github.com/oussama-bht-proclus/ArtifactsDepository.git"
-		GITRepositoryURLSSH = "git@github.com:oussama-bht-proclus/ArtifactsDepository.git"
-		//GITCredentials = "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"
-		GITCredentials = "GithubCReds"
-		GIT_CREDENTIALS_ID = "SSHPrivate"
+		CPIHost = "${ENV.CPI_HOST_BHT00}"
+		CPIOAuthHost = "${env.CPI_OAUTH_HOST_BHT00}"
+		CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT00}"	
+		GITRepositoryURL  = "${env.GIT_REPO_URL_BHT00}"	
+		GITRepositoryURLSSH = "${env.GIT_REPO_SSHURL_BHT00}"
+		GITCredentials = "GithubCReds" // saved in credentials
 		GITBranch = "main"
 		GITFolder = "IntegrationContent/IntegrationArtefacts"
-		GITComment = "Integration Artefacts update from CICD pipeline"
+		GITComment = "Download Integration Artefacts from ${env.CPI_HOST_BHT00} in CICD pipeline"
    	}
 
 	parameters {
 		string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
-		string(name: 'TEMP_FETCH', defaultValue: '', description: '')
+		// add version 
+		string(name: 'version',defaultValue: 'active', description: 'the version of the IFlow')
+		
 	}
 
 	
@@ -46,32 +45,27 @@ pipeline {
 					])
 					
 					//get token
-					println('FETCHED CREDENTIALS');
-					println(env.getProperty(params.TEMP_FETCH));
-					println('FETCHED CREDENTIALS');
 					println("Request token");
 					def token;
 					try{
-						println('REQUEST BEFORE')
 						def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
-							//authentication: env.CPIOAuthCredentials, 
-							customHeaders : [[name: 'Authorization', value: "Basic c2ItNWQ3NTA0ZTUtYzJkMS00NGRkLTkzMDctZWFiNDM1YzBiOWJiIWIyODQ1MDN8aXQhYjU1MjE1OmQ0ODkwMzUxLTE1NWEtNDM4YS1hZmMxLTdkOTFhNTRlNjUzZiRLaEZ0aGFSVnNzcW90cjlQS0tuY1JWZDNkME9YSTZONHRzWmV2X0gtX1ZFPQ=="]],
+							customHeaders : [[name: 'Authorization', value: "Basic "+env.CPIOAuthCredentials]],
 							contentType: 'APPLICATION_JSON', 
 							httpMode: 'POST', 
 							responseHandle: 'LEAVE_OPEN', 
 							timeout: 30, 
 							url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
-						println('REQUEST BEFORE json')
 						def jsonObjToken = readJSON text: getTokenResp.getContent()
-						println('REQUEST AFTER')
 						token = "Bearer " + jsonObjToken.access_token
 				   	} catch (Exception e) {
 						error("Requesting the oauth token for Cloud Integration failed:\n${e}")
 					}
+
 					//delete the old flow content so that only the latest content gets stored
 					dir(env.GITFolder + '/' + env.IntegrationFlowID){
 						deleteDir();
 					}
+
 					//download and extract artefact from tenant
 					println("Downloading artefact");
 					def tempfile = UUID.randomUUID().toString() + ".zip";
@@ -82,7 +76,7 @@ pipeline {
 						validResponseCodes: '100:399, 404',
 						timeout: 30,  
 						outputFile: tempfile,
-						url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\''+ env.IntegrationFlowID + '\',Version=\'active\')/$value';
+						url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\''+ env.IntegrationFlowID + '\',Version=\'' + params.version + '\')/$value';
 					if (cpiDownloadResponse.status == 404){
 						//invalid Flow ID
 						error("Received http status code 404. Please check if the Artefact ID that you have provided exists on the tenant.");
@@ -97,8 +91,8 @@ pipeline {
 					try {
 						fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
 					}catch(Exception excep){
-						println("EXCEPTIOn =>");
-						println(excep.getMessage());
+						println("File Operation exception :");
+						println("Error: ${excep.getMessage()}")
 					}
 
 					cpiDownloadResponse.close();
@@ -109,12 +103,12 @@ pipeline {
 					dir(folder){
 						sh 'git add .'
 					}
-					println("Store integration artefact in Git")
 
+					println("Store integration artefact in Git")
 					try {
                         withCredentials([sshUserPrivateKey(credentialsId: 'GIT_SSH_KEY', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
-                            // Start SSH agent and add the key
-							
+                            
+							// Start SSH agent and add the key
                             sh '''
                                 eval `ssh-agent -s`
                                 echo "$SSH_PASSPHRASE" | ssh-add $SSH_KEY_PATH
@@ -135,7 +129,7 @@ pipeline {
 
 					
 
-					println('PIPELINE OVER 2')				
+					println('Artefcat downloaded successfully !')				
 				}
 			}
 		}
