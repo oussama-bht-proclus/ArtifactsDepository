@@ -45,9 +45,9 @@ pipeline {
 					])
 					
 					//get token
-					pritnln('FETCHED CREDENTIALS');
-					pritnln(env.CPIOAuthCredentials);
-					pritnln('FETCHED CREDENTIALS');
+					println('FETCHED CREDENTIALS');
+					println(env.CPIOAuthCredentials);
+					println('FETCHED CREDENTIALS');
 					println("Request token");
 					def token;
 					try{
