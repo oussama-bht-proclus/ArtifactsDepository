@@ -5,6 +5,7 @@ pipeline {
 	environment {
 		IntegrationFlowID = "com.nmbs.if.GLB.RDMT2VBX.I0010.TACO_DERIVED_TACO.Read"
 		ConfigParameter = "SAP_Receiver"
+		TEST_BHT = "${env.CPI_BHT00}"
 		NewConfigValue = "TEST_GCP"
 		CPIHost = "d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com"
 		CPIOAuthHost = "d4854fbatrial.authentication.us10.hana.ondemand.com"
@@ -23,6 +24,9 @@ pipeline {
 				   //Get oauth token
 				   def token;
 				   println('Fetching authentification token')
+				   println('FETCHED CREDENTIAL');
+				   println(env.TEST_BHT);
+				   println('FETCHED CREDENTIAL');
 				   try {
 					def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON', 
 						//authentication: "${env.CPIOAuthCredentials}", 
