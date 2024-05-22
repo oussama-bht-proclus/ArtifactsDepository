@@ -100,7 +100,7 @@ pipeline {
                   ],
                   httpMode: 'POST',
                   requestBody: postPayload,
-                  url: 'https://'+ env.CPIHost +'/api/v1/IntegrationDesigntimeArtifacts'
+                  url: 'https://d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com/api/v1/IntegrationDesigntimeArtifacts'
           } else {
                 //Overwrite integration flow via PUT
                 println("Flow already exists on configured tenant. Update will be performed.");
