@@ -7,10 +7,10 @@ pipeline {
     IntegrationPackage = "${params.PackageID}" //relevant for flows that are uploaded the first time 
     DeployFlow = true //if the flow should only be uploaded, set this to false
     DeploymentCheckRetryCounter = 20 //multiply by 3 to get the maximum deployment time
-    CPIHost = "d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com"
-    CPIOAuthHost = "d4854fbatrial.it-cpitrial05-rt.cfapps.us10-001.hana.ondemand.com"
-    CPIOAuthCredentials = "${env.CPI_OAUTH_CREDS_INTEGRATION}" 
-    GITRepositoryURL = "github.com/oussama-bht-proclus/ArtifactsDepository"
+    CPIHost = "${env.CPI_HOST_BHT8}"
+    CPIOAuthHost = "${env.CPI_OAUTH_HOST_BHT8}"
+    CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT8}" 
+    GITRepositoryURL = "${env.GIT_REPO_URL_BHT00}"	
     GITCredentials = "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"
     GITBranch = "main"
     GITFolder = "IntegrationContent/IntegrationArtefacts"
@@ -18,7 +18,6 @@ pipeline {
 
   parameters {
     string(name: 'IntegrationFlowID', defaultValue: '', description: 'Suite File')
-    string(name: 'PackageID' , defaultValue: 'TESTCICD', description: 'Target package ID where the IFlow should be uploaded to')
   }
 
   stages {
@@ -48,9 +47,6 @@ pipeline {
             ]
           ])
 
-          println('Param:PackageID => '+params.PackageID)
-          println('Param:IntegrationFlowID => '+params.IntegrationFlowID)
-
 	        //zip the flow content 
           def folder = env.GITFolder + '/' + env.IntegrationFlowID + '/';
           def filePath = env.IntegrationFlowID + ".zip";
@@ -60,16 +56,13 @@ pipeline {
           //get token
 	        println("Requesting token from Cloud Integration tenant - UPLOAD UPDATE");
 	        def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON',
-	           // authentication: 'OAUTH_TEST_API',
 	            contentType: 'APPLICATION_JSON',
 	            httpMode: 'POST',
 	            responseHandle: 'LEAVE_OPEN',
-	            timeout: 50,
-		          customHeaders:[[name:'Authorization', value:"Basic c2ItM2JjNGRhMGMtN2E0YS00ZTc0LWE0MDEtNDc3NzY1NTExYzM1IWIyNzkwNDR8aXQhYjI2NjU1OmQwZDRjZjFiLWI5MTUtNDI5Ny1iOWJjLTEzYTI0ZWQwMmFhNyRfeUNDSi1tdE5lOWE3V041aWRKSkU1T216T2JuRFdoM3AxS0ZEb01VaWd3PQ=="]],
-		          consoleLogResponseBody : true,
-	            url: 'https://d4854fbatrial.authentication.us10.hana.ondemand.com/oauth/token?grant_type=client_credentials';
+	            timeout: 30,
+		          customHeaders:[[maskValue: false ,name:'Authorization', value:"Basic " + env.CPIOAuthCredentials]],
+              url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
 	 
-	        println("Initial token fetched :")
 	        def jsonObjToken = readJSON text: getTokenResp.getContent() 
           def token = "Bearer " + jsonObjToken.access_token
 	        getTokenResp.close()
@@ -79,25 +72,17 @@ pipeline {
             httpMode: 'GET',
             responseHandle: 'LEAVE_OPEN',
             validResponseCodes: '200,201,202,404',
-            timeout: 50,
+            timeout: 30,
 	          contentType : 'APPLICATION_JSON',
-	          customHeaders:[[name:'Authorization', value: token]],
-	          consoleLogResponseBody : true,
-            url: 'https://d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
+	          customHeaders:[[maskValue: false, name:'Authorization', value: token]],
+            url: 'https://'+ env.CPIHost +'/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
 	
-          def temp = readJSON text: checkResp.getContent() 
-          println(temp)
-          println("Starting deployment process")
-          println('filePath')
-          println(filePath)
-          println('folder')
-          println(folder)
+          //def temp = readJSON text: checkResp.getContent() 
 
-	  
           def filecontent = readFile encoding: 'Base64', file: filePath;
           if (checkResp.status == 404) {
                 //Upload integration flow via POST
-          println("Flow does not yet exist on configured tenant.");
+                println("Flow does not yet exist on configured tenant.");
                 //prepare upload payload
                 def postPayload = '{ \"Name\": \"flowName\", \"Id": "flowId\", \"PackageId\": \"packageId\", \"ArtifactContent\":\"flowContent\"}';
 
@@ -105,43 +90,38 @@ pipeline {
                 postPayload = postPayload.replace('flowId', env.IntegrationFlowID);
                 postPayload = postPayload.replace('packageId', env.IntegrationPackage);
                 postPayload = postPayload.replace('flowContent', filecontent);
-
-          println('fileContent')
-          println(filecontent)
-          println('PostPayload')
-          println(postPayload)
 		  
-            //upload
-	    println("Uploading flow.");
-            def postResp = httpRequest acceptType: 'APPLICATION_JSON',
-              contentType: 'APPLICATION_JSON',
-              customHeaders: [
-                [maskValue: false, name: 'Authorization', value: token]
-              ],
-              httpMode: 'POST',
-              requestBody: postPayload,
-              url: 'https://d4854fbatrial.it-cpitrial05.cfapps.us10-001.hana.ondemand.com/api/v1/IntegrationDesigntimeArtifacts'
+                //upload
+                println("Uploading flow.");
+                def postResp = httpRequest acceptType: 'APPLICATION_JSON',
+                  contentType: 'APPLICATION_JSON',
+                  customHeaders: [
+                    [maskValue: false, name: 'Authorization', value: token]
+                  ],
+                  httpMode: 'POST',
+                  requestBody: postPayload,
+                  url: 'https://'+ env.CPIHost +'/api/v1/IntegrationDesigntimeArtifacts'
           } else {
-            //Overwrite integration flow via PUT
-			      println("Flow already exists on configured tenant. Update will be performed.");
-            //prepare upload payload
-            def putPayload = '{ \"Name\": \"flowName\", \"ArtifactContent\": \"iflowContent\"}';
-            putPayload = putPayload.replace('flowName', env.IntegrationFlowID);
-            putPayload = putPayload.replace('iflowContent', filecontent);
+                //Overwrite integration flow via PUT
+                println("Flow already exists on configured tenant. Update will be performed.");
+                //prepare upload payload
+                def putPayload = '{ \"Name\": \"flowName\", \"ArtifactContent\": \"iflowContent\"}';
+                putPayload = putPayload.replace('flowName', env.IntegrationFlowID);
+                putPayload = putPayload.replace('iflowContent', filecontent);
 
-            //upload
-	    println("Uploading flow.");
-            def putResp = httpRequest acceptType: 'APPLICATION_JSON',
-              contentType: 'APPLICATION_JSON',
-              customHeaders: [
-                [maskValue: false, name: 'Authorization', value: token]
-              ],
-              httpMode: 'PUT',
-              requestBody: putPayload,
-              url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
+                //upload
+                println("Uploading flow.");
+                def putResp = httpRequest acceptType: 'APPLICATION_JSON',
+                  contentType: 'APPLICATION_JSON',
+                  customHeaders: [
+                    [maskValue: false, name: 'Authorization', value: token]
+                  ],
+                  httpMode: 'PUT',
+                  requestBody: putPayload,
+                  url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
           }
-          println("Upload successful");
           checkResp.close();
+          println("Upload successful");
         }
       }
     }
