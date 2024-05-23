@@ -9,7 +9,7 @@
 			CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT00}"	
 			GITRepositoryURL  = "${env.GIT_REPO_URL_BHT00}"	
 			GITRepositoryURLSSH = "${env.GIT_REPO_SSHURL_BHT00}"
-			GITCredentials = "GithubCReds" // saved in credentials
+			GITCredentials = "GithubCredsV2" // saved in credentials
 			GITBranch = "main"
 			GITFolder = "IntegrationContent/IntegrationArtefacts"
 			GITComment = "Download Integration Artefacts from ${env.CPI_HOST_BHT00} in CICD pipeline"
