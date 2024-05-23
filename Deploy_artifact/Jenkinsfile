@@ -3,13 +3,17 @@ pipeline {
 
   //Configure the following environment variables before executing the Jenkins Job
   environment {
-    IntegrationFlowID = "IntegrationFlow1"
+    IntegrationFlowID = "${params.package}"
     GetEndpoint = true //If you don't need the endpoint or the artefact does not provide an endpoint, set the value to false
     DeploymentCheckRetryCounter = 20 //multiply by 3 to get the maximum deployment time
-	  CPIHost = "${env.CPI_HOST}"
-	  CPIOAuthHost = "${env.CPI_OAUTH_HOST}"
-	  CPIOAuthCredentials = "${env.CPI_OAUTH_CRED}"	
+	  CPIHost = "${env.CPI_HOST_BHT8}"
+	  CPIOAuthHost = "${env.CPI_OAUTH_HOST_BHT8}"
+	  CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT8}" 
   }
+
+  parameters {
+			string(name: 'PackageID', defaultValue: 'TESTCICD', description: 'Package where this IFlow is supposed to be saved in target Tenant')
+	}
 
   stages {
     stage('Generate oauth bearer token') {
@@ -18,13 +22,13 @@ pipeline {
           //get oauth token for Cloud Integration
           println("requesting oauth token");
           def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON',
-            authentication: "${env.CPIOAuthCredentials}",
+            customHeaders:[[maskValue: false ,name:'Authorization', value:"Basic " + env.CPIOAuthCredentials]],
             contentType: 'APPLICATION_JSON',
             httpMode: 'POST',
             responseHandle: 'LEAVE_OPEN',
             timeout: 30,
             url: 'https://' + env.CPIOAuthHost + '/oauth/token?grant_type=client_credentials';
-          def jsonObjToken = readJSON text: getTokenResp.content
+          def jsonObjToken = readJSON text: getTokenResp.getContent();
           def token = "Bearer " + jsonObjToken.access_token
           env.token = token
           getTokenResp.close();
@@ -35,12 +39,11 @@ pipeline {
     stage('Deploy integration flow and check for deployment success') {
       steps {
         script {
+
           //deploy integration flow as specified in the configuration
           println("Deploying integration flow.");
           def deployResp = httpRequest httpMode: 'POST',
-            customHeaders: [
-              [maskValue: false, name: 'Authorization', value: env.token]
-            ],
+            customHeaders: [[maskValue: false, name: 'Authorization', value: env.token]],
             ignoreSslErrors: true,
             timeout: 30,
             url: 'https://' + "${env.CPIHost}" + '/api/v1/DeployIntegrationDesigntimeArtifact?Id=\'' + "${env.IntegrationFlowID}" + '\'&Version=\'active\'';
@@ -56,14 +59,12 @@ pipeline {
             Thread.sleep(3000);
             counter = counter + 1;
             def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
-              customHeaders: [
-                [maskValue: false, name: 'Authorization', value: env.token]
-              ],
+              customHeaders: [[maskValue: false, name: 'Authorization', value: env.token]],
               httpMode: 'GET',
               responseHandle: 'LEAVE_OPEN',
               timeout: 30,
               url: 'https://' + "${env.CPIHost}" + '/api/v1/IntegrationRuntimeArtifacts(\'' + "${env.IntegrationFlowID}" + '\')';
-            def jsonObj = readJSON text: statusResp.content;
+            def jsonObj = readJSON text: statusResp.getContent();
             deploymentStatus = jsonObj.d.Status;
 
             println("Deployment status: " + deploymentStatus);
@@ -71,14 +72,12 @@ pipeline {
             if (deploymentStatus.equalsIgnoreCase("Error")) {
               //in case of error, get the error details
               def deploymentErrorResp = httpRequest acceptType: 'APPLICATION_JSON',
-                customHeaders: [
-                  [maskValue: false, name: 'Authorization', value: env.token]
-                ],
+                customHeaders: [[maskValue: false, name: 'Authorization', value: env.token]],
                 httpMode: 'GET',
                 responseHandle: 'LEAVE_OPEN',
                 timeout: 30,
                 url: 'https://' + "${env.CPIHost}" + '/api/v1/IntegrationRuntimeArtifacts(\'' + "${env.IntegrationFlowID}" + '\')' + '/ErrorInformation/$value';
-              def jsonErrObj = readJSON text: deploymentErrorResp.content
+              def jsonErrObj = readJSON text: deploymentErrorResp.getContent()
               def deployErrorInfo = jsonErrObj.parameter;
               println("Error Details: " + deployErrorInfo);
               statusResp.close();
@@ -104,14 +103,12 @@ pipeline {
             if (env.GetEndpoint.equalsIgnoreCase("true")) {
               //Get endpoint as configured above
               def endpointResp = httpRequest acceptType: 'APPLICATION_JSON',
-                customHeaders: [
-                  [maskValue: false, name: 'Authorization', value: env.token]
-                ],
+                customHeaders: [[maskValue: false, name: 'Authorization', value: env.token]],
                 httpMode: 'GET',
                 responseHandle: 'LEAVE_OPEN',
                 timeout: 30,
                 url: 'https://' + "${env.CPIHost}" + '/api/v1/ServiceEndpoints?$filter=Name%20eq%20\'' + "${env.IntegrationFlowID}" + '\'&$select=EntryPoints&$format=json&$expand=EntryPoints'
-              def jsonEndpointObj = readJSON text: endpointResp.content;
+              def jsonEndpointObj = readJSON text: endpointResp.getContent();
               def endpoint = jsonEndpointObj.d.results.EntryPoints.results.Url;
               def size = (jsonEndpointObj.d.results.EntryPoints.results).size();
               endpointResp.close();
