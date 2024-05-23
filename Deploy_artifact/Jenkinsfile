@@ -68,7 +68,7 @@ pipeline {
               timeout: 30,
               url: 'https://' + "${env.CPIHost}" + '/api/v1/IntegrationRuntimeArtifacts(\'' + "${env.IntegrationFlowID}" + '\')';
             println('AFTER REQUEST');
-            println(statusResp)
+            println(statusResp.Status)
             def jsonObj = readJSON text: statusResp.getContent();
             println('STOPS HERE')
             deploymentStatus = jsonObj.d.Status;
