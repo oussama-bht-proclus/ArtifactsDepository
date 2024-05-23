@@ -122,7 +122,7 @@ pipeline {
                   requestBody: putPayload,
                   url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
                 println('END OF UPDATE');
-          µ}
+          }
           //checkResp.close();
           println("Upload successful");
         }
