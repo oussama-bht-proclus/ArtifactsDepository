@@ -5,7 +5,7 @@ pipeline {
   environment {
     IntegrationFlowID = "${params.integrationFlowID}"
     GetEndpoint = true //If you don't need the endpoint or the artefact does not provide an endpoint, set the value to false
-    DeploymentCheckRetryCounter = 20 //multiply by 3 to get the maximum deployment time
+    DeploymentCheckRetryCounter = 50 //multiply by 3 to get the maximum deployment time
 	  CPIHost = "${env.CPI_HOST_BHT8}"
 	  CPIOAuthHost = "${env.CPI_OAUTH_HOST_BHT8}"
 	  CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT8}" 
@@ -61,6 +61,7 @@ pipeline {
             def statusResp = httpRequest acceptType: 'APPLICATION_JSON',
               customHeaders: [[maskValue: false, name: 'Authorization', value: env.token]],
               httpMode: 'GET',
+              validResponseCodes : '100:599'
               responseHandle: 'LEAVE_OPEN',
               timeout: 30,
               url: 'https://' + "${env.CPIHost}" + '/api/v1/IntegrationRuntimeArtifacts(\'' + "${env.IntegrationFlowID}" + '\')';
