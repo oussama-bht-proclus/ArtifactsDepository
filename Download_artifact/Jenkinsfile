@@ -35,9 +35,9 @@
 							doGenerateSubmoduleConfigurations: false,
 							extensions: [
 								[$class: 'RelativeTargetDirectory',relativeTargetDir: "."],
-								[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path: env.GITFolder]]]
+								[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path: env.GITFolder]]],
+								[$class: 'CloneOption', depth: 1, shallow: true, timeout:10]
 							],
-							[$class: 'CloneOption', depth: 1, shallow: true, timeout:10],
 							submoduleCfg: [],
 							userRemoteConfigs: [[
 								credentialsId: env.GITCredentials,
