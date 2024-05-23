@@ -18,6 +18,7 @@
 		parameters {
 			string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
 			// add version 
+			string(name: 'PackageID', defaultValue: 'TESTCICD', description: 'Package where this IFlow is supposed to be saved in target Tenant')
 			string(name: 'version', defaultValue: 'active', description: 'the version of the IFlow')
 			
 		}
@@ -140,7 +141,11 @@
 			success {
 				script {
 					def flowID = "${params.IntegrationFlowID}"
-					build job: 'Upload_Update_IFlow/main', parameters: [string(name: 'IntegrationFlowID', value: flowID)]
+					def packageID = "${params.packageID}"
+					build job: 'Upload_Update_IFlow/main', parameters: [
+							string(name: 'IntegrationFlowID', value: flowID),
+							string(name: 'PackageID', value: packageID )
+					]
 				}
 			}
 		}
