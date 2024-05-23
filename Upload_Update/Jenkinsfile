@@ -36,7 +36,8 @@ pipeline {
               [$class: 'RelativeTargetDirectory', relativeTargetDir: "."],
               [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [
                 [$class: 'SparseCheckoutPath', path: env.GITFolder]
-              ]]
+              ]],
+              [$class: 'CloneOption', depth: 1, shallow: true, timeout:10]
             ],
             submoduleCfg: [],
             userRemoteConfigs: [
