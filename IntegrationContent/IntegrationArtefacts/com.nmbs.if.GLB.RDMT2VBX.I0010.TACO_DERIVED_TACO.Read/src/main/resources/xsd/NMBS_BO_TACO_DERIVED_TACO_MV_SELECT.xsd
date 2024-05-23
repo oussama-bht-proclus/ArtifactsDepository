@@ -1,0 +1,31 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- Define element types -->
+  <xs:element name="ROOT">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="select_response" type="SelectResponseType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:complexType name="SelectResponseType">
+    <xs:sequence>
+      <xs:element name="row" type="RowType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="RowType">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:decimal"/>
+      <xs:element name="TACO_ID" type="xs:decimal"/>
+      <xs:element name="PASSENGERTYPE" type="xs:string"/>
+      <xs:element name="DERIVED_TACO_ID" type="xs:decimal"/>
+      <xs:element name="RAILPLUS" type="xs:string"/>
+      <xs:element name="STATUS" type="xs:string"/>
+      <xs:element name="LAST_UPDATE_DATE" type="xs:date"/>
+      <xs:element name="LAST_UPDATE_BY" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+</xs:schema>
