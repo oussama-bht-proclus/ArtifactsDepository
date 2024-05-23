@@ -64,6 +64,7 @@
 							error("Requesting the oauth token for Cloud Integration failed:\n${e}")
 						}
 
+
 						//delete the old flow content so that only the latest content gets stored
 						dir(env.GITFolder + '/' + env.IntegrationFlowID){
 							deleteDir();
@@ -142,9 +143,11 @@
 				script {
 					def flowID = "${params.IntegrationFlowID}"
 					def packageID = "${params.packageID}"
+					def version = "${params.version}"
 					build job: 'Upload_Update_IFlow/main', parameters: [
 							string(name: 'IntegrationFlowID', value: flowID),
-							string(name: 'PackageID', value: packageID )
+							string(name: 'PackageID', value: packageID ),
+							string(name: 'version', value: version)
 					]
 				}
 			}
