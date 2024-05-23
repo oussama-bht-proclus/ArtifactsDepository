@@ -117,11 +117,13 @@ pipeline {
                   customHeaders: [
                     [maskValue: false, name: 'Authorization', value: token]
                   ],
+                  timeout: 30,
                   httpMode: 'PUT',
                   requestBody: putPayload,
                   url: 'https://' + env.CPIHost + '/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'active\')';
-          }
-          checkResp.close();
+                println('END OF UPDATE');
+          µ}
+          //checkResp.close();
           println("Upload successful");
         }
       }
