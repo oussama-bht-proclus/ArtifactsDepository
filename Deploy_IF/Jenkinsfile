@@ -46,7 +46,7 @@ pipeline {
             customHeaders: [[maskValue: false, name: 'Authorization', value: env.token]],
             ignoreSslErrors: true,
             timeout: 30,
-            url: 'https://' + "${env.CPIHost}" + '/api/v1/DeployIntegrationDesigntimeArtifact?Id=\'' + "${env.IntegrationFlowID}" + '\'&Version=\'active\'';
+            url: 'https://' + env.CPIHost + '/api/v1/DeployIntegrationDesigntimeArtifact?Id=\'' + env.IntegrationFlowID + '\'&Version=\'active\'';
 
           //check deployment status
           println("Start checking integration flow deployment status.");
@@ -66,8 +66,11 @@ pipeline {
               validResponseCodes : '100:599',
               responseHandle: 'LEAVE_OPEN',
               timeout: 30,
-              url: 'https://' + "${env.CPIHost}" + '/api/v1/IntegrationRuntimeArtifacts(\'' + "${env.IntegrationFlowID}" + '\')';
+              url: 'https://' + env.CPIHost + '/api/v1/IntegrationRuntimeArtifacts(\'' + env.IntegrationFlowID + '\')';
             println('AFTER REQUEST');
+            println("*-*-*-");
+            println(statusResp)
+            println("*-*-*-");
             println(statusResp.Status)
             def jsonObj = readJSON text: statusResp.getContent();
             println('STOPS HERE')
@@ -82,7 +85,7 @@ pipeline {
                 httpMode: 'GET',
                 responseHandle: 'LEAVE_OPEN',
                 timeout: 30,
-                url: 'https://' + "${env.CPIHost}" + '/api/v1/IntegrationRuntimeArtifacts(\'' + "${env.IntegrationFlowID}" + '\')' + '/ErrorInformation/$value';
+                url: 'https://' + env.CPIHost + '/api/v1/IntegrationRuntimeArtifacts(\'' + env.IntegrationFlowID + '\')' + '/ErrorInformation/$value';
               def jsonErrObj = readJSON text: deploymentErrorResp.getContent()
               def deployErrorInfo = jsonErrObj.parameter;
               println("Error Details: " + deployErrorInfo);
@@ -113,7 +116,7 @@ pipeline {
                 httpMode: 'GET',
                 responseHandle: 'LEAVE_OPEN',
                 timeout: 30,
-                url: 'https://' + "${env.CPIHost}" + '/api/v1/ServiceEndpoints?$filter=Name%20eq%20\'' + "${env.IntegrationFlowID}" + '\'&$select=EntryPoints&$format=json&$expand=EntryPoints'
+                url: 'https://' + env.CPIHost + '/api/v1/ServiceEndpoints?$filter=Name%20eq%20\'' + env.IntegrationFlowID + '\'&$select=EntryPoints&$format=json&$expand=EntryPoints'
               def jsonEndpointObj = readJSON text: endpointResp.getContent();
               def endpoint = jsonEndpointObj.d.results.EntryPoints.results.Url;
               def size = (jsonEndpointObj.d.results.EntryPoints.results).size();
