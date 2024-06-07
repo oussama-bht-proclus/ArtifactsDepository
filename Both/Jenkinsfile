@@ -27,9 +27,9 @@
 		}
 
 		parameters {
-			string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
+			string(name: 'IntegrationFlowID', defaultValue: 'Access_Secure_Parameters_in_Scripts', description: 'Integration IFlow ID')
 			// add version 
-			string(name: 'PackageID', defaultValue: 'TESTCICD', description: 'Package where this IFlow is supposed to be saved in target Tenant')
+			string(name: 'PackageID', defaultValue: 'TEST', description: 'Package where this IFlow is supposed to be saved in target Tenant')
 			string(name: 'version', defaultValue: 'active', description: 'the version of the IFlow')
 			
 		}
@@ -97,7 +97,7 @@
 							error("Received http status code 404. Please check if the Artefact ID that you have provided exists on the tenant.");
 						}
 
-						def disposition = cpiDownloadResponse.headers.toString();
+						/*def disposition = cpiDownloadResponse.headers.toString();
 						def index=disposition.indexOf('filename')+9;
 						def lastindex=disposition.indexOf('.zip', index);
 						def filename=disposition.substring(index + 1, lastindex + 4);
@@ -113,7 +113,7 @@
 						cpiDownloadResponse.close();
 
 						//remove the zip
-						fileOperations([fileDeleteOperation(excludes: '', includes: tempfile)])
+						fileOperations([fileDeleteOperation(excludes: '', includes: tempfile)])*/
 							
 						// start pushing to the other tenant from here
 						println("START UPLOADING SECTION");
@@ -148,6 +148,7 @@
 						// this httpRequest above should be checked out again because of the version check, maybe we shoouldn't version  check
 
 						// next line is 
+						println("PROBLEM IS HERE")
 						def filecontent = readFile encoding: 'Base64', file: tempfile; // changed file: fileSomething -> file: tempFile
 
 						println("CHECKING TEMPFILE");
