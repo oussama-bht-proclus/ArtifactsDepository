@@ -27,9 +27,8 @@
 		}
 
 		parameters {
-			string(name: 'IntegrationFlowID', defaultValue: 'Access_Secure_Parameters_in_Scripts', description: 'Integration IFlow ID')
-			// add version 
-			string(name: 'PackageID', defaultValue: 'TEST', description: 'Package where this IFlow is supposed to be saved in target Tenant')
+			string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
+			string(name: 'PackageID', defaultValue: 'TESTCICD', description: 'Package where this IFlow is supposed to be saved in target Tenant')
 			string(name: 'version', defaultValue: 'active', description: 'the version of the IFlow')
 			
 		}
