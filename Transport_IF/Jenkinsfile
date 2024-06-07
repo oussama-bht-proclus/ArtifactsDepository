@@ -4,35 +4,27 @@
 		//Configure the following environment variables before executing the Jenkins Job	
 		environment {
 			IntegrationFlowID = "${params.IntegrationFlowID}"
-			IntegrationFlowVersion = "${params.version}"
-
+			IntegrationPackage =  "${params.PackageID}" //"${params.PackageID}" //relevant for flows that are uploaded the first time 
+			IntegrationFlowVersion = "active" //Downloading IFlow per version number doesn't work; kept by default 'active' for now
 			CPIHost = "${env.CPI_HOST_BHT00}"
 			CPIOAuthHost = "${env.CPI_OAUTH_HOST_BHT00}"
 			CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT00}"	
 			GITRepositoryURL  = "${env.GIT_REPO_URL_BHT00}"	
 			GITRepositoryURLSSH = "${env.GIT_REPO_SSHURL_BHT00}"
+			CPIHost_TARGET = "${env.CPI_HOST_BHT8}"
+			CPIOAuthHost_TARGET = "${env.CPI_OAUTH_HOST_BHT8}"
+			CPIOAuthCredentials_TARGET = "${env.CPI_OAUTH_CRED_BHT8}" 
 			GITCredentials = "GithubCredsV3" // saved in credentials
 			GITBranch = "main"
 			GITFolder = "IntegrationContent/IntegrationArtefacts"
 			GITComment = "Download Integration Artefacts from ${env.CPI_HOST_BHT00} in CICD pipeline"
 
-			IntegrationPackage =  "${params.PackageID}" //"${params.PackageID}" //relevant for flows that are uploaded the first time 
-			DeployFlow = true //if the flow should only be uploaded, set this to false
-			DeploymentCheckRetryCounter = 20 //multiply by 3 to get the maximum deployment time
-			CPIHost_TARGET = "${env.CPI_HOST_BHT8}"
-			CPIOAuthHost_TARGET = "${env.CPI_OAUTH_HOST_BHT8}"
-			CPIOAuthCredentials_TARGET = "${env.CPI_OAUTH_CRED_BHT8}" 
-			//GITRepositoryURL = "${env.GIT_REPO_URL_BHT00}"	 // they share same repository as a central repo
-			//GITCredentials = "GithubCredsV2"
-			//GITBranch = "main"
-			//GITFolder = "IntegrationContent/IntegrationArtefacts"
 		}
 
 		parameters {
 			string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
-			string(name: 'PackageID', defaultValue: 'TESTCICD', description: 'Package where this IFlow is supposed to be saved in target Tenant')
-			string(name: 'version', defaultValue: 'active', description: 'the version of the IFlow')
-			
+			string(name: 'PackageID', defaultValue: 'TEST', description: 'Package where this IFlow is supposed to be saved in target Tenant')
+			//string(name: 'version', defaultValue: 'active', description: 'the version of the IFlow (active = deployed version)')
 		}
 
 		
@@ -133,13 +125,6 @@
 						// next line is 
 						println("PROBLEM IS HERE")
 						def filecontent = readFile encoding: 'Base64', file: tempfile; // changed file: fileSomething -> file: tempFile
-
-						println("CHECKING TEMPFILE");
-						println("X-X--X-x-X")
-						println("TYPE OF FILECONTENT IS "+ tempfile.getClass());
-						println("TYPE OF FILECONTENT IS "+ filecontent.getClass());
-						println("X-X--X-x-X-----5858")
-						println("START UPLOADING SECTION");
 
 						if (checkResp.status == 404) {
 							//Upload integration flow via POST
