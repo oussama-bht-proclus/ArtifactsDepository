@@ -148,9 +148,13 @@
 						// this httpRequest above should be checked out again because of the version check, maybe we shoouldn't version  check
 
 						// next line is 
-						def filecontent = readFile encoding: 'Base64', file: tempFile; // changed file: fileSomething -> file: tempFile
+						def filecontent = readFile encoding: 'Base64', file: tempfile; // changed file: fileSomething -> file: tempFile
 
+						println("CHECKING TEMPFILE");
+						println("X-X--X-x-X")
 						println("TYPE OF FILECONTENT IS "+ tempfile.getClass());
+						println("TYPE OF FILECONTENT IS "+ filecontent.getClass());
+						println("X-X--X-x-X-----5858")
 						println("START UPLOADING SECTION");
 
 						if (checkResp.status == 404) {
