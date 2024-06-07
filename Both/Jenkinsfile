@@ -147,7 +147,7 @@
 						// this httpRequest above should be checked out again because of the version check, maybe we shoouldn't version  check
 
 						// next line is 
-						//def filecontent = readFile encoding: 'Base64', file: filePath;
+						def filecontent = readFile encoding: 'Base64', file: tempFile; // changed file: fileSomething -> file: tempFile
 
 						println("TYPE OF FILECONTENT IS "+ tempfile.getClass());
 						println("START UPLOADING SECTION");
@@ -161,7 +161,7 @@
 							postPayload = postPayload.replace('flowName', env.IntegrationFlowID);
 							postPayload = postPayload.replace('flowId', env.IntegrationFlowID);
 							postPayload = postPayload.replace('packageId', env.IntegrationPackage);
-							postPayload = postPayload.replace('flowContent', tempFile);
+							postPayload = postPayload.replace('flowContent', filecontent);
 						
 							//upload
 							println("Uploading flow.");
