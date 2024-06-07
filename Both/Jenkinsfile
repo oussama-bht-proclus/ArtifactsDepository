@@ -129,7 +129,7 @@
 							url: 'https://' + env.CPIOAuthHost_TARGET + '/oauth/token?grant_type=client_credentials';
 				
 						def jsonObjToken = readJSON text: getTokenResp.getContent() 
-						def token = "Bearer " + jsonObjToken.access_token
+						token = "Bearer " + jsonObjToken.access_token
 						getTokenResp.close()
 
 						
