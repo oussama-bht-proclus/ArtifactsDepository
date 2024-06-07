@@ -135,6 +135,7 @@
 						
 						
 						//check if the flow already exists on the tenant
+						println("CHECK IF THE FLOW ALREADY EXISTS ON THE TENANT");
 						def checkResp = httpRequest acceptType: 'APPLICATION_JSON',
 							httpMode: 'GET',
 							responseHandle: 'LEAVE_OPEN',
