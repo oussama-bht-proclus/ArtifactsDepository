@@ -98,23 +98,6 @@
 							error("Received http status code 404. Please check if the Artefact ID that you have provided exists on the tenant.");
 						}
 
-						/*def disposition = cpiDownloadResponse.headers.toString();
-						def index=disposition.indexOf('filename')+9;
-						def lastindex=disposition.indexOf('.zip', index);
-						def filename=disposition.substring(index + 1, lastindex + 4);
-						def folder=env.GITFolder + '/' + filename.substring(0, filename.indexOf('.zip'));
-
-						try {
-							fileOperations([fileUnZipOperation(filePath: tempfile, targetLocation: folder)])
-						}catch(Exception excep){
-							println("File Operation exception :");
-							println("Error: ${excep.getMessage()}")
-						}
-
-						cpiDownloadResponse.close();
-
-						//remove the zip
-						fileOperations([fileDeleteOperation(excludes: '', includes: tempfile)])*/
 							
 						// start pushing to the other tenant from here
 						println("START UPLOADING SECTION");
@@ -133,7 +116,6 @@
 						token = "Bearer " + jsonObjToken.access_token
 						getTokenResp.close()
 
-						
 						
 						//check if the flow already exists on the tenant
 						println("CHECK IF THE FLOW ALREADY EXISTS ON THE TENANT");
