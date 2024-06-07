@@ -11,7 +11,7 @@ pipeline {
     CPIOAuthHost = "d4854fbatrial.it-cpitrial05-rt.cfapps.us10-001.hana.ondemand.com"
     CPIOAuthCredentials = "${env.CPI_OAUTH_CREDS_INTEGRATION}"
     GITRepositoryURL = "github.com/oussama-bht-proclus/ArtifactsDepository"
-    GITCredentials = "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"
+    //GITCredentials = "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" // this was showing an error in GitHUB
     GITBranch = "main"
     GITFolder = "IntegrationContent/IntegrationArtefacts"
   }

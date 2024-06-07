@@ -13,6 +13,17 @@
 			GITBranch = "main"
 			GITFolder = "IntegrationContent/IntegrationArtefacts"
 			GITComment = "Download Integration Artefacts from ${env.CPI_HOST_BHT00} in CICD pipeline"
+
+			IntegrationPackage =  "${params.PackageID}" //"${params.PackageID}" //relevant for flows that are uploaded the first time 
+			DeployFlow = true //if the flow should only be uploaded, set this to false
+			DeploymentCheckRetryCounter = 20 //multiply by 3 to get the maximum deployment time
+			CPIHost_TARGET = "${env.CPI_HOST_BHT8}"
+			CPIOAuthHost_TARGET = "${env.CPI_OAUTH_HOST_BHT8}"
+			CPIOAuthCredentials_TARGET = "${env.CPI_OAUTH_CRED_BHT8}" 
+			//GITRepositoryURL = "${env.GIT_REPO_URL_BHT00}"	 // they share same repository as a central repo
+			//GITCredentials = "GithubCredsV2"
+			//GITBranch = "main"
+			//GITFolder = "IntegrationContent/IntegrationArtefacts"
 		}
 
 		parameters {
@@ -104,51 +115,85 @@
 						//remove the zip
 						fileOperations([fileDeleteOperation(excludes: '', includes: tempfile)])
 							
-						dir(folder){
-							sh 'git add .'
-						}
+						// start pushing to the other tenant from here
+						println("START UPLOADING SECTION");
 
-						println("Store integration artefact in Git")
-						try {
-							withCredentials([sshUserPrivateKey(credentialsId: 'GIT_SSH_KEY', keyFileVariable: 'SSH_KEY_PATH', passphraseVariable: 'SSH_PASSPHRASE')]) {
-								
-								// Start SSH agent and add the key
-								sh '''
-									eval `ssh-agent -s`
-									echo "$SSH_PASSPHRASE" | ssh-add $SSH_KEY_PATH
-									ssh-add -l
-								'''
-								
-								// Configure git to use SSH key
-								sh 'git config core.sshCommand "ssh -i $SSH_KEY_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
-
-								// Commit and push changes
-								sh 'git diff-index --quiet HEAD || git commit -am "' + env.GITComment + '"'
-								sh 'git push ' + env.GITRepositoryURLSSH + ' HEAD:' + env.GITBranch
-							}
-						} catch(Exception exception){
-							println('EXCEPTION CATCHED')
-							println("Error: ${exception.getMessage()}")
-						}
+						//get token
+						println("Requesting token from Cloud Integration tenant - UPLOAD UPDATE");
+						def getTokenResp = httpRequest acceptType: 'APPLICATION_JSON',
+							contentType: 'APPLICATION_JSON',
+							httpMode: 'POST',
+							responseHandle: 'LEAVE_OPEN',
+							timeout: 30,
+							customHeaders:[[maskValue: false ,name:'Authorization', value:"Basic " + env.CPIOAuthCredentials_TARGET]],
+							url: 'https://' + env.CPIOAuthHost_TARGET + '/oauth/token?grant_type=client_credentials';
+				
+						def jsonObjToken = readJSON text: getTokenResp.getContent() 
+						def token = "Bearer " + jsonObjToken.access_token
+						getTokenResp.close()
 
 						
+						
+						//check if the flow already exists on the tenant
+						def checkResp = httpRequest acceptType: 'APPLICATION_JSON',
+							httpMode: 'GET',
+							responseHandle: 'LEAVE_OPEN',
+							validResponseCodes: '200,201,202,404',
+							timeout: 30,
+							contentType : 'APPLICATION_JSON',
+							customHeaders:[[maskValue: false, name:'Authorization', value: token]],
+							url: 'https://'+ env.CPIHost_TARGET +'/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'' + params.version + '\')';
+						
+						// this httpRequest above should be checked out again because of the version check, maybe we shoouldn't version  check
 
-						println('Artefcat downloaded successfully !')				
+						// next line is 
+						//def filecontent = readFile encoding: 'Base64', file: filePath;
+
+						println("TYPE OF FILECONTENT IS "+ tempfile.getClass());
+						println("START UPLOADING SECTION");
+
+						if (checkResp.status == 404) {
+							//Upload integration flow via POST
+							println("Flow does not yet exist on configured tenant.");
+							//prepare upload payload
+							def postPayload = '{ \"Name\": \"flowName\", \"Id": "flowId\", \"PackageId\": \"packageId\", \"ArtifactContent\":\"flowContent\"}';
+
+							postPayload = postPayload.replace('flowName', env.IntegrationFlowID);
+							postPayload = postPayload.replace('flowId', env.IntegrationFlowID);
+							postPayload = postPayload.replace('packageId', env.IntegrationPackage);
+							postPayload = postPayload.replace('flowContent', tempFile);
+						
+							//upload
+							println("Uploading flow.");
+							def postResp = httpRequest acceptType: 'APPLICATION_JSON',
+								contentType: 'APPLICATION_JSON',
+								customHeaders: [[maskValue: false, name: 'Authorization', value: token]],
+								httpMode: 'POST',
+								requestBody: postPayload,
+								url: 'https://' + env.CPIHost_TARGET + '/api/v1/IntegrationDesigntimeArtifacts'
+						} else {
+							//Overwrite integration flow via PUT
+							println("Flow already exists on configured tenant. Update will be performed.");
+							//prepare upload payload
+							def putPayload = '{ \"Name\": \"flowName\", \"ArtifactContent\": \"iflowContent\"}';
+							putPayload = putPayload.replace('flowName', env.IntegrationFlowID);
+							putPayload = putPayload.replace('iflowContent', filecontent);
+
+							//upload
+							println("Uploading flow.");
+							def putResp = httpRequest acceptType: 'APPLICATION_JSON',
+								contentType: 'APPLICATION_JSON',
+								customHeaders: [[maskValue: false, name: 'Authorization', value: token]],
+								timeout: 30,
+								httpMode: 'PUT',
+								requestBody: putPayload,
+								url: 'https://' + env.CPIHost_TARGET + '/api/v1/IntegrationDesigntimeArtifacts(Id=\'' + env.IntegrationFlowID + '\',Version=\'' + params.version + '\')';
+							println('END OF UPDATE');
+						}
+						//checkResp.close();
+						println("Upload successful");
+									
 					}
-				}
-			}
-		}
-		post {
-			success {
-				script {
-					def flowID = "${params.IntegrationFlowID}"
-					def packageID = "${params.packageID}"
-					def version = "${params.version}"
-					build job: 'Upload_Update_IFlow/main', parameters: [
-							string(name: 'IntegrationFlowID', value: flowID),
-							string(name: 'PackageID', value: packageID ),
-							string(name: 'version', value: version)
-					]
 				}
 			}
 		}
