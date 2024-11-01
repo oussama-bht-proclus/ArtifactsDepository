@@ -1,2 +1,59 @@
-text text test
-edkjekfjkejk
+	pipeline {
+		agent any
+
+		//Configure the following environment variables before executing the Jenkins Job	
+		environment {
+			IntegrationFlowID = "${params.IntegrationFlowID}"
+			CPIHost = "${env.CPI_HOST_BHT00}"
+			CPIOAuthHost = "${env.CPI_OAUTH_HOST_BHT00}"
+			CPIOAuthCredentials = "${env.CPI_OAUTH_CRED_BHT00}"	
+			GITRepositoryURL  = "${env.GIT_REPO_URL_BHT00}"	
+			GITRepositoryURLSSH = "${env.GIT_REPO_SSHURL_BHT00}"
+			GITCredentials = "GithubCredsV2" // saved in credentials
+			GITBranch = "main"
+			GITFolder = "IntegrationContent/IntegrationArtefacts"
+			GITComment = "Download Integration Artefacts from ${env.CPI_HOST_BHT00} in CICD pipeline"
+		}
+
+		parameters {
+			/*string(name: 'IntegrationFlowID', defaultValue: '', description: 'Integration IFlow ID')
+			// add version 
+			string(name: 'PackageID', defaultValue: 'TESTCICD', description: 'Package where this IFlow is supposed to be saved in target Tenant')
+			string(name: 'version', defaultValue: 'active', description: 'the version of the IFlow')
+            */
+			
+		}
+
+		
+		stages {
+			stage('download integration artefact and store it in Git') {
+				steps {
+					deleteDir()
+					script {
+						//clone repo 
+						checkout([
+							$class: 'GitSCM',
+							branches: [[name: env.GITBranch]],
+							doGenerateSubmoduleConfigurations: false,
+							extensions: [
+								[$class: 'RelativeTargetDirectory',relativeTargetDir: "."],
+								[$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[$class:'SparseCheckoutPath', path: env.GITFolder]]],
+								[$class: 'CloneOption', depth: 1, shallow: true, timeout:10]
+							],
+							submoduleCfg: [],
+							userRemoteConfigs: [[
+								credentialsId: env.GITCredentials,
+								url: 'https://' + env.GITRepositoryURL
+							]]
+						])
+						
+						//get token
+						println("We got to here");
+
+						println('Artefcat downloaded successfully !')				
+					}
+				}
+			}
+		}
+		
+	}
